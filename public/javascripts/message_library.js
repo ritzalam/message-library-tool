@@ -1,4 +1,3 @@
-
 //list of events to be selected from
 var listEvents = {
 		0 : 'Please select an event type',
