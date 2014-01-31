@@ -1,4 +1,3 @@
-
 doctype html
 html
   head
@@ -12,7 +11,7 @@ html
     //- import socket.io
     script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.6/socket.io.min.js")
   body
-    h1 Fill these fields and press "Generate JSON"!
+    h2 Fill in the Meeting Info section and add some events using the "+Another Event" button
     table#meeting_table(style='background-color: Brown')
       th
         tr
@@ -44,7 +43,7 @@ html
 
     form#send-form
       
-    script(src="javascripts/other.js")
+    script(src="javascripts/message_library.js")
     script(src="javascripts/main.js")
 
     
