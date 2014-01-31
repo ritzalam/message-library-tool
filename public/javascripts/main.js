@@ -74,9 +74,6 @@ function bindEvent(socket){
 	socket.on('connected', function(){
 		console.log('\n\n**connected');
 	});
-	socket.on("sendJSON_anton", function (formInfoObj){
-                sendJSON(formInfoObj);
-    });
 };
 
 //triggered when a user presses "Send" on any of the event forms
@@ -90,6 +87,7 @@ function sendJsonPressed(element) {
         }
     }
     var json_to_send = tmpJson.textContent.replace(/\s/g, ''); //strip off the empty spaces in the json string from the div
+    //TODO this is the reason why there are no spaces between words in messages like "end_meeting_response"
 
     //alert("json_to_send=" + json_to_send);
     console.log("clicked on sendJSON button");
