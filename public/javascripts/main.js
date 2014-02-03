@@ -2,78 +2,78 @@ var globalSocket;
 
 var numEventRows = 0;//number of event forms is initially zero
 
-$(document).ready(function(){
-	/*$('#event_selector').change(function(){
-		//add_another_event_form();
-		pickEventFromList();
-	});*/
+var message_library;
 
-//triggered when the button "+Another Event" is pressed
-$("#button_for_more_events").unbind("click").click(function(){
-	numEventRows++;
+$(document).ready(function () {
+   //triggered when the button "+Another Event" is pressed
+    $("#button_for_more_events").unbind("click").click(function () {
+        numEventRows++;
 
-	//entire row div
-	var row2Div = document.createElement('div');
-	row2Div.setAttribute('id', 'row_'+numEventRows);
-	document.getElementById('table_2').appendChild(row2Div);
+        //entire row div
+        var row2Div = document.createElement('div');
+        row2Div.setAttribute('id', 'row_' + numEventRows);
+        document.getElementById('table_2').appendChild(row2Div);
 
-	//+- button for expanding
-	var tmpExpand = document.createElement('input');
-	tmpExpand.setAttribute('id', 'button_for_expand_event_'+numEventRows);
-	tmpExpand.setAttribute('value', '-');
-	tmpExpand.setAttribute('type', 'button');
-	tmpExpand.setAttribute('onclick', 'expand_shrink_div(this)');
-	document.getElementById('row_'+numEventRows).appendChild(tmpExpand);
+        //+- button for expanding
+        var tmpExpand = document.createElement('input');
+        tmpExpand.setAttribute('id', 'button_for_expand_event_' + numEventRows);
+        tmpExpand.setAttribute('value', '-');
+        tmpExpand.setAttribute('type', 'button');
+        tmpExpand.setAttribute('onclick', 'expand_shrink_div(this)');
+        document.getElementById('row_' + numEventRows).appendChild(tmpExpand);
 
-	//"Event name:"
-	var txt = document.createTextNode(numEventRows +")Event name:");
-	document.getElementById('row_'+numEventRows).appendChild(txt);
-	
-	//Event Selector
-	var tmpEventSelector = document.createElement('select');	
-	tmpEventSelector.setAttribute('id', 'event_selector_'+numEventRows);
-	for(index in listEvents) {
-	    tmpEventSelector.options[tmpEventSelector.options.length] = new Option(listEvents[index], index);
-	}
-	tmpEventSelector.setAttribute('onchange', 'pickEventFromList(this)');
-	document.getElementById('row_'+numEventRows).appendChild(tmpEventSelector);
-	
+        //"Event name:"
+        var txt = document.createTextNode(numEventRows + ")Event name:");
+        document.getElementById('row_' + numEventRows).appendChild(txt);
 
-	//Send button
-	var tmpSendJson = document.createElement('input');
-	tmpSendJson.setAttribute('id', 'sendJSON_'+numEventRows);
-	tmpSendJson.setAttribute('value', 'Send');
-	tmpSendJson.setAttribute('type', 'button');
-	tmpSendJson.setAttribute('onclick','sendJsonPressed(this);');
-	document.getElementById('row_'+numEventRows).appendChild(tmpSendJson);
+        //Event Selector
+        var tmpEventSelector = document.createElement('select');
+        tmpEventSelector.setAttribute('id', 'event_selector_' + numEventRows);
+        for (index in message_library.listEvents) {
+            tmpEventSelector.options[tmpEventSelector.options.length] = new Option(message_library.listEvents[index], index);
+        }
+        tmpEventSelector.setAttribute('onchange', 'pickEventFromList(this)');
+        document.getElementById('row_' + numEventRows).appendChild(tmpEventSelector);
 
+        //Send button
+        var tmpSendJson = document.createElement('input');
+        tmpSendJson.setAttribute('id', 'sendJSON_' + numEventRows);
+        tmpSendJson.setAttribute('value', 'Send');
+        tmpSendJson.setAttribute('type', 'button');
+        tmpSendJson.setAttribute('onclick', 'sendJsonPressed(this);');
+        document.getElementById('row_' + numEventRows).appendChild(tmpSendJson);
 
+        //Json_track -where the json text is displayed
+        var tmpJsonTrack = document.createElement('div');
+        tmpJsonTrack.setAttribute('id', 'json_track_' + numEventRows);
+        tmpJsonTrack.setAttribute('contenteditable', 'true');
+        tmpJsonTrack.setAttribute('style', 'auto');
+        tmpJsonTrack.setAttribute('width', '400px');
+        document.getElementById('row_' + numEventRows).appendChild(tmpJsonTrack);
+    });
 
-	//Json_track -where the json text is displayed
-	var tmpJsonTrack = document.createElement('div');
-	tmpJsonTrack.setAttribute('id', 'json_track_'+numEventRows);
-	tmpJsonTrack.setAttribute('contenteditable', 'true');
-	tmpJsonTrack.setAttribute('style', 'auto');
-	tmpJsonTrack.setAttribute('width', '400px');
-	document.getElementById('row_'+numEventRows).appendChild(tmpJsonTrack);
-	});
-
-
-	//connect to correct socket
-	var socket = io.connect(window.location.protocol + "//" + window.location.host);
-	var clientSocket;
-	globalSocket = socket
-	bindEvent(socket);
+    //connect to correct socket
+    var socket = io.connect(window.location.protocol + "//" + window.location.host);
+    var clientSocket;
+    globalSocket = socket
+    bindEvent(socket);
 });
 
-	/*
-	*	binds socket events to button clicks
-	*	@param socket - socket object which connects to the server
-	*/
-function bindEvent(socket){
-	socket.on('connected', function(){
-		console.log('\n\n**connected');
-	});
+/*
+ *	binds socket events to button clicks
+ *	@param socket - socket object which connects to the server
+ */
+function bindEvent(socket) {
+    socket.on('connected', function () {
+        console.log('\n\n**connected');
+    });
+
+    socket.emit("requesting_list_events");
+
+
+    socket.on("providing_list_events", function (data) {
+        message_library = data;
+    });
 };
 
 //triggered when a user presses "Send" on any of the event forms
@@ -109,92 +109,98 @@ function sendJsonPressed(element) {
 
 // formatJson() :: formats and indents JSON string FROM http://ketanjetty.com/coldfusion/javascript/format-json/
 function formatJson(val) {
-	var retval = '';
-	var str = val;
+    var retval = '';
+    var str = val;
     var pos = 0;
     var strLen = str.length;
-	var indentStr = '&nbsp;&nbsp;&nbsp;&nbsp;';
+    var indentStr = '&nbsp;&nbsp;&nbsp;&nbsp;';
     var newLine = '<br />';
-	var char = '';
-	
-	for (var i=0; i<strLen; i++) {
-		char = str.substring(i,i+1);
-		
-		if (char == '}' || char == ']') {
-			retval = retval + newLine;
-			pos = pos - 1;
-			
-			for (var j=0; j<pos; j++) {
-				retval = retval + indentStr;
-			}
-		}
-		
-		retval = retval + char;	
-		
-		if (char == '{' || char == '[' || char == ',') {
-			retval = retval + newLine;
-			
-			if (char == '{' || char == '[') {
-				pos = pos + 1;
-			}
-			
-			for (var k=0; k<pos; k++) {
-				retval = retval + indentStr;
-			}
-		}
-	}
-	
-	return retval;
+    var char = '';
+
+    for (var i = 0; i < strLen; i++) {
+        char = str.substring(i, i + 1);
+
+        if (char == '}' || char == ']') {
+            retval = retval + newLine;
+            pos = pos - 1;
+
+            for (var j = 0; j < pos; j++) {
+                retval = retval + indentStr;
+            }
+        }
+
+        retval = retval + char;
+
+        if (char == '{' || char == '[' || char == ',') {
+            retval = retval + newLine;
+
+            if (char == '{' || char == '[') {
+                pos = pos + 1;
+            }
+
+            for (var k = 0; k < pos; k++) {
+                retval = retval + indentStr;
+            }
+        }
+    }
+
+    return retval;
 };
 
 //triggered when a user selects what kind of event to be added/displayed
 function pickEventFromList(element) {
+    //fetch data from Meeting Info
+    var meetingName = document.getElementById("common_meeting_name").value;
+    var meetingID = document.getElementById("common_meeting_id").value;
+    var sessionID = document.getElementById("common_session").value;
+
+    //fetch info for what event was selected from dropdown
     var number = $(element).val();
-    var tmp = listEvents[element.selectedIndex];
+    var nameOfEvent = message_library.listEvents[element.selectedIndex];
 
-    //we extract the number of the section from the id. For example "event_selector_11" would yield "11"
-    var currentSectionNum = element.id.substring(15,element.id.length);
+    //we extract the number of the section: "event_selector_11" would yield "11"
+    var currentSectionNum = element.id.substring(15, element.id.length);
 
-	//we match the name of the event required and trigger the appropriate function to create such javascript Object and pass it!
-	if(number !=0)
-		document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(returnJsonOf(tmp));
-	else
-	{
-		document.getElementById("json_track_" + currentSectionNum).innerHTML = "";
-	}
+    var socket = io.connect(window.location.protocol + "//" + window.location.host);
+    globalSocket = socket;
+
+    socket.emit("requestJsonForThisEvent", nameOfEvent, meetingName, meetingID, sessionID);
+
+    socket.on("providingJsonForThisEvent", function (json_text) {
+        //we match the name of the event required and trigger the appropriate function to create such javascript Object and pass it!
+        if (number != 0) {
+            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json_text);
+        } else {
+            document.getElementById("json_track_" + currentSectionNum).innerHTML = "";
+        }
+    });
 };
 
 //triggered when the user selects "Clear fields" under the Meeting Info section
-function clearMeetingInfo () {
-	document.getElementById("common_meeting_name").value = "";
-	document.getElementById("common_meeting_id").value = "";
-	document.getElementById("common_session").value = "";
+function clearMeetingInfo() {
+    document.getElementById("common_meeting_name").value = "";
+    document.getElementById("common_meeting_id").value = "";
+    document.getElementById("common_session").value = "";
 }
 
 //triggered when the user presses -/+ in the beginning of a Send Event JSON row
 function expand_shrink_div(element) {
-	str = element.id.substring(24,element.id.length);
-	var btn = element.value;
+    str = element.id.substring(24, element.id.length);
+    var btn = element.value;
 
-	var tmp;
-	var list=element.parentNode.childNodes;
-	for(var i=0; i<list.length; i++)
-	{
-		 if(typeof list[i].id !=="undefined" && list[i].id.substring(0,11)=='json_track_'){
-			tmp=list[i];
-		}
-	}
+    var tmp;
+    var list = element.parentNode.childNodes;
+    for (var i = 0; i < list.length; i++) {
+        if (typeof list[i].id !== "undefined" && list[i].id.substring(0, 11) == 'json_track_') {
+            tmp = list[i];
+        }
+    }
 
-	if(btn == "+")
-	{
-		element.value  = "-";
-		tmp.style.display="block";
-	}
-	else if(btn == "-")
-	{
-		element.value = "+";
-		tmp.style.display="none";
-	}	
+    if (btn == "+") {
+        element.value = "-";
+        tmp.style.display = "block";
+    } else if (btn == "-") {
+        element.value = "+";
+        tmp.style.display = "none";
+    }
 }
-
-
