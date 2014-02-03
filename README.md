@@ -1,7 +1,9 @@
-message-library-bbb
+message-library-tool
 ===================
 
 This tool is to be used while building HTML5 client for BBB
+together with bigbluebutton-messages module
+
 
 ## Usage
 
