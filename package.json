@@ -1,6 +1,6 @@
 {
 "name": "message-library-bbb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "start": "node app.js"
   },
@@ -8,6 +8,7 @@
     "express": "3.4.6",
     "jade": "*",
     "socket.io" : "0.9.16",
-    "redis" : "0.9.1"
+    "redis" : "0.9.1",
+    "bigbluebutton-messages" : "0.0.2"
   }
 }
