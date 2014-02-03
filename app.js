@@ -4,7 +4,7 @@ var path = require('path');
 var redis = require("redis");
 var redisClient;
 var PORT = 4000;
-var message_library = require('message-library-bbb/message_library');
+var message_library = require('bigbluebutton-messages/message_library');
 
 //setting up server to run
 var app = express(),
