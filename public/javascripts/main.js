@@ -55,7 +55,7 @@ $(document).ready(function () {
     //connect to correct socket
     var socket = io.connect(window.location.protocol + "//" + window.location.host);
     var clientSocket;
-    globalSocket = socket
+    globalSocket = socket;
     bindEvent(socket);
 });
 
@@ -96,7 +96,7 @@ function sendJsonPressed(element) {
         //connect to correct socket
         var socket = io.connect(window.location.protocol + "//" + window.location.host);
         var clientSocket;
-        globalSocket = socket
+        globalSocket = socket;
 
         formInfoObj = JSON.parse(json_to_send);
         socket.emit("sendJSON_anton", formInfoObj);
