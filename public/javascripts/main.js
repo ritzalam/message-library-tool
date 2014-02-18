@@ -29,8 +29,8 @@ $(document).ready(function () {
         //Event Selector
         var tmpEventSelector = document.createElement('select');
         tmpEventSelector.setAttribute('id', 'event_selector_' + numEventRows);
-        for (index in message_library.listEvents) {
-            tmpEventSelector.options[tmpEventSelector.options.length] = new Option(message_library.listEvents[index], index);
+        for (index in message_library.getEvents) {
+            tmpEventSelector.options[tmpEventSelector.options.length] = new Option(message_library.getEvents[index], index);
         }
         tmpEventSelector.setAttribute('onchange', 'pickEventFromList(this)');
         document.getElementById('row_' + numEventRows).appendChild(tmpEventSelector);
@@ -54,7 +54,6 @@ $(document).ready(function () {
 
     //connect to correct socket
     var socket = io.connect(window.location.protocol + "//" + window.location.host);
-    var clientSocket;
     globalSocket = socket;
     bindEvent(socket);
 });
@@ -95,11 +94,9 @@ function sendJsonPressed(element) {
     try {
         //connect to correct socket
         var socket = io.connect(window.location.protocol + "//" + window.location.host);
-        var clientSocket;
         globalSocket = socket;
 
-        formInfoObj = JSON.parse(json_to_send);
-        socket.emit("sendJSON_anton", formInfoObj);
+        socket.emit("sendJSON_anton", json_to_send);
         bindEvent(socket);
     } catch (err) {
         alert(err);
@@ -156,7 +153,7 @@ function pickEventFromList(element) {
 
     //fetch info for what event was selected from dropdown
     var number = $(element).val();
-    var nameOfEvent = message_library.listEvents[element.selectedIndex];
+    var nameOfEvent = message_library.getEvents[element.selectedIndex];
 
     //we extract the number of the section: "event_selector_11" would yield "11"
     var currentSectionNum = element.id.substring(15, element.id.length);
@@ -164,9 +161,47 @@ function pickEventFromList(element) {
     var socket = io.connect(window.location.protocol + "//" + window.location.host);
     globalSocket = socket;
 
-    socket.emit("requestJsonForThisEvent", nameOfEvent, meetingName, meetingID, sessionID);
+    //socket.emit("requestJsonForThisEvent", nameOfEvent, meetingName, meetingID, sessionID);
+
+
+
+    var params = {};
+    params.meetingId = "someMeetingId";
+    params.sessionId = "someSessionId";
+    params.channels = "someChannels";
+    params.source = "someSource";
+    params.meetingName = "someMeetingName";
+    params.whiteboardId = "someWhiteBoardId";
+    params.shapeId = "someShapeId";
+    params.shapeType = "someShapeType";
+    params.firstX = 0.5;
+    params.firstY = 0.5;
+    params.lastX = 0.5;
+    params.lastY = 0.5;
+    params.lineColor = 0;
+    params.lineWeight = 18;
+    params.lineType = "solid"; //TODO choose between "solid", ...
+    params.byId = "someById";
+    params.byName = "someByName";
+    params.background_visible = true;
+    params.background_color = 0;
+    params.background_alpha = 1;
+    params.square = false;
+    
+
+
+    socket.emit("requestJsonForThisEvent", params);
+
+
+
+
+
 
     socket.on("providingJsonForThisEvent", function (json_text) {
+        if(json_text == null)
+        {
+            alert("json_text is null. can't proceed");
+        }
         //we match the name of the event required and trigger the appropriate function to create such javascript Object and pass it!
         if (number != 0) {
             document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json_text);
