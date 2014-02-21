@@ -96,6 +96,8 @@ function sendJsonPressed(element) {
         var socket = io.connect(window.location.protocol + "//" + window.location.host);
         globalSocket = socket;
 
+        alert("json_to_send:" + json_to_send);
+
         socket.emit("sendJSON_anton", json_to_send);
         bindEvent(socket);
     } catch (err) {
@@ -144,6 +146,59 @@ function formatJson(val) {
     return retval;
 };
 
+function whiteboardDraw () {
+    var params = {};
+    params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
+    params.sessionId = "someSessionId";
+    params.channels = "apps_channel";
+    params.source = "bbb-apps";
+    params.meetingName = "someMeetingName";
+    params.whiteboardId = "presentation_id/page_num";
+    params.shapeId = "q779ogycfmxk-13-1383262166102";
+    params.shapeType = "rectangle";
+    params.firstX = 0.016025641025641028;
+    params.firstY = 0.982905982905983;
+    params.lastX = 0.33;
+    params.lastY = 0.45;
+    params.lineColor = 0;
+    params.lineWeight = 18;
+    params.lineType = "solid"; //TODO choose between "solid", ...
+    params.byId = "user1";
+    params.byName = "Guga";
+    params.background_visible = true;
+    params.background_color = 0;
+    params.background_alpha = 1;
+    params.square = false;
+
+    return params;
+}
+function whiteboardUpdate () {
+    var params = {};
+    params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
+    params.sessionId = "someSessionId";
+    params.channels = "apps_channel";
+    params.source = "bbb-apps";
+    params.meetingName = "someMeetingName";
+    params.whiteboardId = "presentation_id/page_num";
+    params.shapeId = "q779ogycfmxk-13-1383262166102";
+    params.shapeType = "rectangle";
+    params.firstX = 0.016025641025641028;
+    params.firstY = 0.982905982905983;
+    params.lastX = 0.33;
+    params.lastY = 0.45;
+    params.lineColor = 0;
+    params.lineWeight = 18;
+    params.lineType = "solid"; //TODO choose between "solid", ...
+    params.byId = "user1";
+    params.byName = "Guga";
+    params.background_visible = true;
+    params.background_color = 0;
+    params.background_alpha = 1;
+    params.square = false;
+
+    return params;
+}
+
 //triggered when a user selects what kind of event to be added/displayed
 function pickEventFromList(element) {
     //fetch data from Meeting Info
@@ -161,43 +216,11 @@ function pickEventFromList(element) {
     var socket = io.connect(window.location.protocol + "//" + window.location.host);
     globalSocket = socket;
 
-    //socket.emit("requestJsonForThisEvent", nameOfEvent, meetingName, meetingID, sessionID);
+    socket.emit("requestJsonForThisEventDraw", whiteboardDraw());
 
+    socket.emit("requestJsonForThisEventUpdate", whiteboardUpdate());
 
-
-    var params = {};
-    params.meetingId = "someMeetingId";
-    params.sessionId = "someSessionId";
-    params.channels = "someChannels";
-    params.source = "someSource";
-    params.meetingName = "someMeetingName";
-    params.whiteboardId = "someWhiteBoardId";
-    params.shapeId = "someShapeId";
-    params.shapeType = "someShapeType";
-    params.firstX = 0.5;
-    params.firstY = 0.5;
-    params.lastX = 0.5;
-    params.lastY = 0.5;
-    params.lineColor = 0;
-    params.lineWeight = 18;
-    params.lineType = "solid"; //TODO choose between "solid", ...
-    params.byId = "someById";
-    params.byName = "someByName";
-    params.background_visible = true;
-    params.background_color = 0;
-    params.background_alpha = 1;
-    params.square = false;
-    
-
-
-    socket.emit("requestJsonForThisEvent", params);
-
-
-
-
-
-
-    socket.on("providingJsonForThisEvent", function (json_text) {
+    /*socket.on("providingJsonForThisEvent", function (json_text) {
         if(json_text == null)
         {
             alert("json_text is null. can't proceed");
@@ -208,7 +231,7 @@ function pickEventFromList(element) {
         } else {
             document.getElementById("json_track_" + currentSectionNum).innerHTML = "";
         }
-    });
+    });*/
 };
 
 //triggered when the user selects "Clear fields" under the Meeting Info section

@@ -49,15 +49,9 @@ io.sockets.on "connection", (socket) -># the actual socket callback
 #        binds socket events for which it will listen on
 #        @param socket - the socket to transfer the events across
 bindEvents = (socket) ->
-  socket.on "sendJSON_anton", (jsonString) ->
-    message_library.whiteboardDrawEventToJavascriptObject jsonString,
-      ((text)->
-        console.log "whiteboardDrawEventToJavascriptObject onSuccess"
-        sendJSON text
-        return
-      ), (err)->
-        console.log "whiteboardDrawEventToJavascriptObject onFailure" + err
-        return
+  socket.on "sendJSON_anton", (text) ->
+    #redisClient.publish "bigbluebutton:bridge", JSON.stringify(text)
+    console.log "HELP, DEAD END!!!!!"
     return
 
   #fetch list to populate dropdown for eventName selection
@@ -70,13 +64,25 @@ bindEvents = (socket) ->
   #        var jsonForThisEvent = message_library.returnJsonOf(eventName, meetingName, meetingID, sessionID);
   #        socket.emit("providingJsonForThisEvent", jsonForThisEvent);
   #    });
-  socket.on "requestJsonForThisEvent", (params) ->
-    message_library.whiteboardDrawEventToJson(params, (json)->
+  socket.on "requestJsonForThisEventDraw", (params) ->
+    message_library.whiteboard_draw_event_to_json(params, (json)->
       console.log "this is onSuccess whiteboardDrawEventToJson"
-      socket.emit "providingJsonForThisEvent", json
+      #socket.emit "providingJsonForThisEvent", json
+      redisClient.publish "bigbluebutton:bridge", json
       return
     , ->
       console.log "this is onFailure whiteboardDrawEventToJson"
+      return
+    )
+
+  socket.on "requestJsonForThisEventUpdate", (params) ->   
+    message_library.whiteboard_update_event_to_json(params, (json)->
+      console.log "this is onSuccess whiteboardUpdateEventToJson"
+      #socket.emit "providingJsonForThisEvent", json
+      redisClient.publish "bigbluebutton:bridge", json
+      return
+    , ->
+      console.log "this is onFailure whiteboardUpdateEventToJson"
       return
     )
   return
@@ -85,7 +91,8 @@ bindEvents = (socket) ->
 #  sendJSON - sends whatever JSON the client input across redis into the html5 client node server
 #  @param formInfoObj - object the event object that contains the information entered in the form
 # 
-sendJSON = (formInfoObj) ->
+###sendJSON = (formInfoObj) ->
   #send it to redis
   redisClient.publish "bigbluebutton:bridge", JSON.stringify(formInfoObj)
   return
+###
