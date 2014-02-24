@@ -61,13 +61,12 @@ bindEvents = (socket) ->
   
   #now that we have the eventName, produce the json (from module). Note that Meeting Info is also plugged in
   #socket.on("requestJsonForThisEvent", function (eventName, meetingName, meetingID, sessionID) {
-  #        var jsonForThisEvent = message_library.returnJsonOf(eventName, meetingName, meetingID, sessionID);
-  #        socket.emit("providingJsonForThisEvent", jsonForThisEvent);
-  #    });
-  socket.on "requestJsonForThisEventDraw", (params) ->
+  #        var jsonForThisEvent = message_library.returnJsonOf(eventName, meetingName, meetingID, sessionID)
+  #        socket.emit("providingJsonForThisEvent", jsonForThisEvent)
+  #    })
+  socket.on "sendEventDraw", (params) ->
     message_library.whiteboard_draw_event_to_json(params, (json)->
       console.log "this is onSuccess whiteboardDrawEventToJson"
-      #socket.emit "providingJsonForThisEvent", json
       redisClient.publish "bigbluebutton:bridge", json
       return
     , ->
@@ -75,17 +74,25 @@ bindEvents = (socket) ->
       return
     )
 
-  socket.on "requestJsonForThisEventUpdate", (params) ->   
+  socket.on "sendEventUpdate", (params) ->   
     message_library.whiteboard_update_event_to_json(params, (json)->
       console.log "this is onSuccess whiteboardUpdateEventToJson"
-      #socket.emit "providingJsonForThisEvent", json
       redisClient.publish "bigbluebutton:bridge", json
       return
     , ->
       console.log "this is onFailure whiteboardUpdateEventToJson"
       return
     )
-  return
+  
+  socket.on "sharePresentationEvent", (params) ->   
+    message_library.share_presentation_event_to_json(params, (json)->
+      console.log "this is onSuccess sharePresentationEvent"
+      redisClient.publish "bigbluebutton:bridge", json
+      return
+    , ->
+      console.log "this is onFailure sharePresentationEvent"
+      return
+    )
 
 #
 #  sendJSON - sends whatever JSON the client input across redis into the html5 client node server

@@ -66,10 +66,8 @@ function bindEvent(socket) {
     socket.on('connected', function () {
         console.log('\n\n**connected');
     });
-
+    //get list_events from the library (on load)
     socket.emit("requesting_list_events");
-
-
     socket.on("providing_list_events", function (data) {
         message_library = data;
     });
@@ -77,33 +75,35 @@ function bindEvent(socket) {
 
 //triggered when a user presses "Send" on any of the event forms
 function sendJsonPressed(element) {
-    //alert("pressed: " + element.id);
-    var tmpJson;
-    var list = element.parentNode.childNodes;
+    /*var selector;*/
+    var list = element.parentNode.childNodes
     for (var i = 0; i < list.length; i++) {
-        if (typeof list[i].id !== "undefined" && list[i].id.substring(0, 11) == 'json_track_') {
-            tmpJson = list[i]; //fetch json string from the displayed html in the div
+        if (typeof list[i].id !== "undefined" && list[i].id.substring(0, 15) == 'event_selector_') {
+           var selector = list[i];
         }
     }
-    var json_to_send = tmpJson.textContent.replace(/\s/g, ''); //strip off the empty spaces in the json string from the div
-    //TODO this is the reason why there are no spaces between words in messages like "end_meeting_response"
+    
+    var socket = io.connect(window.location.protocol + "//" + window.location.host);
+    globalSocket = socket;
 
-    //alert("json_to_send=" + json_to_send);
-    console.log("clicked on sendJSON button");
-    var formInfoObj;
-    try {
-        //connect to correct socket
-        var socket = io.connect(window.location.protocol + "//" + window.location.host);
-        globalSocket = socket;
-
-        alert("json_to_send:" + json_to_send);
-
-        socket.emit("sendJSON_anton", json_to_send);
-        bindEvent(socket);
-    } catch (err) {
-        alert(err);
-        alert("Invalid JSON");
+    var selectedEvent = selector.options[selector.value].innerHTML;
+    if (selectedEvent == message_library.WHITEBOARD_DRAW_EVENT)
+    {
+        socket.emit("sendEventDraw", whiteboardDraw());
     }
+        
+    else if (selectedEvent == message_library.WHITEBOARD_UPDATE_EVENT)
+    {
+        socket.emit("sendEventUpdate", whiteboardUpdate());
+    }
+    else if (selectedEvent == message_library.SHARE_PRESENTATION_EVENT)
+    {
+        socket.emit("sharePresentationEvent", sharePresentationEvent());
+    }
+
+
+
+
 }
 
 // formatJson() :: formats and indents JSON string FROM http://ketanjetty.com/coldfusion/javascript/format-json/
@@ -145,7 +145,20 @@ function formatJson(val) {
 
     return retval;
 };
+function sharePresentationEvent () {
 
+    var params = {};
+    params.meetingId = "someMeetingId";
+    params.sessionId = "someSessionId";
+    params.channels = "someChannels";
+    params.source = "someSource";
+    params.meetingName = "someMeetingName";
+    params.presentationId = "pres-123";
+    params.presentationName = "Flight School";
+    params.byId = "someById";
+    params.byName = "someByName";
+    params;
+}
 function whiteboardDraw () {
     var params = {};
     params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
@@ -155,7 +168,7 @@ function whiteboardDraw () {
     params.meetingName = "someMeetingName";
     params.whiteboardId = "presentation_id/page_num";
     params.shapeId = "q779ogycfmxk-13-1383262166102";
-    params.shapeType = "rectangle";
+    params.shapeType = "line";
     params.firstX = 0.016025641025641028;
     params.firstY = 0.982905982905983;
     params.lastX = 0.33;
@@ -181,7 +194,7 @@ function whiteboardUpdate () {
     params.meetingName = "someMeetingName";
     params.whiteboardId = "presentation_id/page_num";
     params.shapeId = "q779ogycfmxk-13-1383262166102";
-    params.shapeType = "rectangle";
+    params.shapeType = "line";
     params.firstX = 0.016025641025641028;
     params.firstY = 0.982905982905983;
     params.lastX = 0.33;
@@ -198,11 +211,25 @@ function whiteboardUpdate () {
 
     return params;
 }
+function sharePresentationEvent () {
+    var params = {};
 
+    params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
+    params.sessionId = "someSessionId";
+    params.channels = "apps_channel";
+    params.source = "bbb-apps";
+    params.meetingName = "someMeetingName";
+    params.presentationId = "pres-123";
+    params.presentationName = "Flight School";
+    params.byId = "someById";
+    params.byName = "someByName";
+
+    return params;
+}
 //triggered when a user selects what kind of event to be added/displayed
 function pickEventFromList(element) {
     //fetch data from Meeting Info
-    var meetingName = document.getElementById("common_meeting_name").value;
+    /*var meetingName = document.getElementById("common_meeting_name").value;
     var meetingID = document.getElementById("common_meeting_id").value;
     var sessionID = document.getElementById("common_session").value;
 
@@ -211,27 +238,7 @@ function pickEventFromList(element) {
     var nameOfEvent = message_library.getEvents[element.selectedIndex];
 
     //we extract the number of the section: "event_selector_11" would yield "11"
-    var currentSectionNum = element.id.substring(15, element.id.length);
-
-    var socket = io.connect(window.location.protocol + "//" + window.location.host);
-    globalSocket = socket;
-
-    socket.emit("requestJsonForThisEventDraw", whiteboardDraw());
-
-    socket.emit("requestJsonForThisEventUpdate", whiteboardUpdate());
-
-    /*socket.on("providingJsonForThisEvent", function (json_text) {
-        if(json_text == null)
-        {
-            alert("json_text is null. can't proceed");
-        }
-        //we match the name of the event required and trigger the appropriate function to create such javascript Object and pass it!
-        if (number != 0) {
-            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json_text);
-        } else {
-            document.getElementById("json_track_" + currentSectionNum).innerHTML = "";
-        }
-    });*/
+    var currentSectionNum = element.id.substring(15, element.id.length);*/
 };
 
 //triggered when the user selects "Clear fields" under the Meeting Info section
@@ -240,7 +247,6 @@ function clearMeetingInfo() {
     document.getElementById("common_meeting_id").value = "";
     document.getElementById("common_session").value = "";
 }
-
 //triggered when the user presses -/+ in the beginning of a Send Event JSON row
 function expand_shrink_div(element) {
     str = element.id.substring(24, element.id.length);
