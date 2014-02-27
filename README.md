@@ -7,7 +7,7 @@ together with bigbluebutton-messages module
 
 ## Usage
 
-node app.js //to start the application
+coffee coffeeApp.coffee //to start the application
 
 At localhost:4000
 * fill in the Meeting Info form
