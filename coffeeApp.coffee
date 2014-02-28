@@ -49,15 +49,9 @@ io.sockets.on "connection", (socket) -># the actual socket callback
 #        binds socket events for which it will listen on
 #        @param socket - the socket to transfer the events across
 bindEvents = (socket) ->
-  socket.on "sendJSON_anton", (jsonString) ->
-    message_library.whiteboardDrawEventToJavascriptObject jsonString,
-      ((text)->
-        console.log "whiteboardDrawEventToJavascriptObject onSuccess"
-        sendJSON text
-        return
-      ), (err)->
-        console.log "whiteboardDrawEventToJavascriptObject onFailure" + err
-        return
+  socket.on "sendJSON_anton", (text) ->
+    #redisClient.publish "bigbluebutton:bridge", JSON.stringify(text)
+    console.log "HELP, DEAD END!!!!!"
     return
 
   #fetch list to populate dropdown for eventName selection
@@ -67,25 +61,45 @@ bindEvents = (socket) ->
   
   #now that we have the eventName, produce the json (from module). Note that Meeting Info is also plugged in
   #socket.on("requestJsonForThisEvent", function (eventName, meetingName, meetingID, sessionID) {
-  #        var jsonForThisEvent = message_library.returnJsonOf(eventName, meetingName, meetingID, sessionID);
-  #        socket.emit("providingJsonForThisEvent", jsonForThisEvent);
-  #    });
-  socket.on "requestJsonForThisEvent", (params) ->
-    message_library.whiteboardDrawEventToJson(params, (json)->
+  #        var jsonForThisEvent = message_library.returnJsonOf(eventName, meetingName, meetingID, sessionID)
+  #        socket.emit("providingJsonForThisEvent", jsonForThisEvent)
+  #    })
+  socket.on "sendEventDraw", (params) ->
+    message_library.whiteboard_draw_event_to_json(params, (json)->
       console.log "this is onSuccess whiteboardDrawEventToJson"
-      socket.emit "providingJsonForThisEvent", json
+      redisClient.publish "bigbluebutton:bridge", json
       return
     , ->
       console.log "this is onFailure whiteboardDrawEventToJson"
       return
     )
-  return
+
+  socket.on "sendEventUpdate", (params) ->   
+    message_library.whiteboard_update_event_to_json(params, (json)->
+      console.log "this is onSuccess whiteboardUpdateEventToJson"
+      redisClient.publish "bigbluebutton:bridge", json
+      return
+    , ->
+      console.log "this is onFailure whiteboardUpdateEventToJson"
+      return
+    )
+  
+  socket.on "sharePresentationEvent", (params) ->   
+    message_library.share_presentation_event_to_json(params, (json)->
+      console.log "this is onSuccess sharePresentationEvent"
+      redisClient.publish "bigbluebutton:bridge", json
+      return
+    , ->
+      console.log "this is onFailure sharePresentationEvent"
+      return
+    )
 
 #
 #  sendJSON - sends whatever JSON the client input across redis into the html5 client node server
 #  @param formInfoObj - object the event object that contains the information entered in the form
 # 
-sendJSON = (formInfoObj) ->
+###sendJSON = (formInfoObj) ->
   #send it to redis
   redisClient.publish "bigbluebutton:bridge", JSON.stringify(formInfoObj)
   return
+###
