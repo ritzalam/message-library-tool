@@ -59,6 +59,9 @@ bindEvents = (socket) ->
   socket.on "sharePresentationEvent", (params) ->   
     helperDispatcher params, message_library.SHARE_PRESENTATION_EVENT
 
+  socket.on "pageChangedEvent", (params) ->   
+    helperDispatcher params, message_library.PAGE_CHANGED_EVENT
+
 helperDispatcher = (params, eventName) ->
     message_library["#{eventName}_to_json"](params, (json)->
       console.log "this is onSuccess #{eventName}"

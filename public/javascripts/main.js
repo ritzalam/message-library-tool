@@ -1,7 +1,6 @@
 var globalSocket;
 
 var numEventRows = 0;//number of event forms is initially zero
-
 var message_library;
 
 $(document).ready(function () {
@@ -100,10 +99,13 @@ function sendJsonPressed(element) {
     {
         socket.emit("sharePresentationEvent", sharePresentationEvent());
     }
+    else if (selectedEvent == message_library.PAGE_CHANGED_EVENT)
+    {
+        socket.emit("pageChangedEvent", pageChangedEvent());
+    }
 
-
-
-
+    else
+        alert("could not identify what event you want to send");
 }
 
 // formatJson() :: formats and indents JSON string FROM http://ketanjetty.com/coldfusion/javascript/format-json/
@@ -145,6 +147,28 @@ function formatJson(val) {
 
     return retval;
 };
+function pageChangedEvent () {
+
+    var params = {};
+    params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
+    params.sessionId = "someSessionId";
+    params.channels = "apps_channel";
+    params.source = "bbb-apps";
+    params.meetingName = "someMeetingName";
+    params.presentationId = "pres-123";
+    params.presentationName = "Flight School";
+    params.byId = "someById";
+    params.byName = "someByName";
+
+    params.pageId = "pres-123/2";
+    params.pageNum = 2;
+
+    params.svg="slide2.svg";
+    params.png="http://2.bp.blogspot.com/-qxAQotPF-4o/UBYIytHxg4I/AAAAAAAAAg0/tff-gmsbTjs/s1600/2+(3).png";
+    params.swf="slide2.swf";
+
+    return params;
+}
 function sharePresentationEvent () {
 
     var params = {};
