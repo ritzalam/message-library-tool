@@ -148,16 +148,31 @@ function formatJson(val) {
 function sharePresentationEvent () {
 
     var params = {};
-    params.meetingId = "someMeetingId";
+    params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
     params.sessionId = "someSessionId";
-    params.channels = "someChannels";
-    params.source = "someSource";
+    params.channels = "apps_channel";
+    params.source = "bbb-apps";
     params.meetingName = "someMeetingName";
     params.presentationId = "pres-123";
     params.presentationName = "Flight School";
     params.byId = "someById";
     params.byName = "someByName";
-    params;
+
+    params.pages = [];
+    var a ={};
+    a.png = "http://cdn.m5hosting.com/images/linux.png";
+    a.svg = "slide1.svg";
+    a.swf = "slide1.swf";
+
+    var b = {};
+    b.png = "http://2.bp.blogspot.com/-qxAQotPF-4o/UBYIytHxg4I/AAAAAAAAAg0/tff-gmsbTjs/s1600/2+(3).png";
+    b.svg = "slide1.svg";
+    b.swf = "slide1.swf";
+
+    params.pages[0] = a;
+    params.pages[1] = b;
+
+    return params;
 }
 function whiteboardDraw () {
     var params = {};
@@ -211,7 +226,7 @@ function whiteboardUpdate () {
 
     return params;
 }
-function sharePresentationEvent () {
+/*function sharePresentationEvent () {
     var params = {};
 
     params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
@@ -225,7 +240,7 @@ function sharePresentationEvent () {
     params.byName = "someByName";
 
     return params;
-}
+}*/
 //triggered when a user selects what kind of event to be added/displayed
 function pickEventFromList(element) {
     //fetch data from Meeting Info
