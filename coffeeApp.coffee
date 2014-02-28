@@ -30,7 +30,6 @@ app.use express.errorHandler()  if "development" is app.get("env")
 app.get "/", (req, res) ->
   res.render "index",
     title: "Value Injector"
-  return
 
 #listening on port 4000
 server.listen PORT
@@ -43,15 +42,10 @@ io.sockets.on "connection", (socket) -># the actual socket callback
   redisClient = redis.createClient()#once the socket is connected, connect to the redis client
   redisClient.on "connect", ->
     console.log "redis client connected"
-    return
-  return
 
 #        binds socket events for which it will listen on
 #        @param socket - the socket to transfer the events across
 bindEvents = (socket) ->
-  socket.on "sendJSON_anton", (text) -> #TODO get rid of this after rebuilding the view-edit-send functionality
-    console.log "HELP, DEAD END!!!!!"
-
   #fetch list to populate dropdown for eventName selection
   socket.on "requesting_list_events", ->
     socket.emit "providing_list_events", message_library
