@@ -64,19 +64,36 @@ bindEvents = (socket) ->
 
   socket.on "populateField", (params, eventName, onSuccess) ->
     message_library["#{eventName}_to_json"](params, ((json)->
-      console.log "this is onSuccess #{eventName}"
+      console.log "this is onSuccess #{eventName} (to json)"
       onSuccess (json)
     ), ->
-      console.log "this is onFailure populateField: #{eventName}"
+      console.log "this is onFailure populateField: #{eventName} (to json)"
+    )
+  
+  socket.on "sendEventManual", (params) ->
+    eventName = params.header.name
+    message_library["#{eventName}_to_json_manual"](params, (json)->
+      console.log "this is onSuccess #{eventName} *(to json)"
+      redisClient.publish "bigbluebutton:bridge", json
+    , ->
+      console.log "this is onFailure #{eventName} (to json)"
+    )
+
+  socket.on "provideJavascriptObject", (params, eventName, onSuccess) ->
+    message_library["#{eventName}_to_javascript_object"](params, ((jObject)->
+      console.log "this is onSuccess #{eventName} (to object)"
+      onSuccess (jObject)
+    ), ->
+      console.log "this is onFailure populateField: #{eventName} (to object)"
     )
 
 
 helperDispatcher = (params, eventName) ->
     message_library["#{eventName}_to_json"](params, (json)->
-      console.log "this is onSuccess #{eventName}"
+      console.log "this is onSuccess #{eventName} *(to json)"
       redisClient.publish "bigbluebutton:bridge", json
     , ->
-      console.log "this is onFailure #{eventName}"
+      console.log "this is onFailure #{eventName} (to json)"
     )
 
 
