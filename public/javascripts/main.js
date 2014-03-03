@@ -74,7 +74,6 @@ function bindEvent(socket) {
 
 //triggered when a user presses "Send" on any of the event forms
 function sendJsonPressed(element) {
-    //we extract the number of the section: "event_selector_11" would yield "11"
     var list = element.parentNode.childNodes
     for (var i = 0; i < list.length; i++) {
         if (typeof list[i].id !== "undefined" && list[i].id.substring(0, 15) == 'event_selector_') {
@@ -83,15 +82,13 @@ function sendJsonPressed(element) {
     }
 
     var selectedEvent = selector.options[selector.value].innerHTML;
-    //alert("selectedEvent = " + selectedEvent);
     var socket = io.connect(window.location.protocol + "//" + window.location.host);
     globalSocket = socket;
 
     //we extract the number of the section: "event_selector_11" would yield "11"
     var currentSectionNum = selector.id.substring(15, selector.id.length);
 
-   // alert("cur = " + currentSectionNum);
-    var text = document.getElementById("json_track_" + currentSectionNum);//.innerHTML;
+    var text = document.getElementById("json_track_" + currentSectionNum);
 
     var json_text = text.textContent.replace(/\s/g, ''); //strip off the empty spaces in the json string from the div
 
@@ -288,9 +285,12 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
         jObject = whiteboardDraw();
 
         //fetch data from Meeting Info
-        /*jObject.meetingId = document.getElementById("common_meeting_id").value;
-        jObject.sessionId = document.getElementById("common_session").value;
-        jObject.meetingName = document.getElementById("common_meeting_name").value;*/
+        if (document.getElementById("common_meeting_id").value != "")
+            jObject.meetingId = document.getElementById("common_meeting_id").value;
+        if (document.getElementById("common_session").value != "")
+            jObject.sessionId = document.getElementById("common_session").value;
+        if (document.getElementById("common_meeting_name").value != "")
+            jObject.meetingName = document.getElementById("common_meeting_name").value;
 
         socket.emit("populateField", jObject, message_library.WHITEBOARD_DRAW_EVENT, function (json) {
             document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
@@ -302,9 +302,12 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
         jObject = whiteboardUpdate();
 
          //fetch data from Meeting Info
-        /*jObject.meetingId = document.getElementById("common_meeting_id").value;
-        jObject.sessionId = document.getElementById("common_session").value;
-        jObject.meetingName = document.getElementById("common_meeting_name").value;*/
+        if (document.getElementById("common_meeting_id").value != "")
+            jObject.meetingId = document.getElementById("common_meeting_id").value;
+        if (document.getElementById("common_session").value != "")
+            jObject.sessionId = document.getElementById("common_session").value;
+        if (document.getElementById("common_meeting_name").value != "")
+            jObject.meetingName = document.getElementById("common_meeting_name").value;
 
         socket.emit("populateField", jObject, message_library.WHITEBOARD_UPDATE_EVENT, function (json) {
             document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
@@ -315,10 +318,13 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
         jObject = sharePresentationEvent();
 
          //fetch data from Meeting Info
-        /*jObject.meetingId = document.getElementById("common_meeting_id").value;
-        jObject.sessionId = document.getElementById("common_session").value;
-        jObject.meetingName = document.getElementById("common_meeting_name").value;
-*/
+         if (document.getElementById("common_meeting_id").value != "")
+            jObject.meetingId = document.getElementById("common_meeting_id").value;
+        if (document.getElementById("common_session").value != "")
+            jObject.sessionId = document.getElementById("common_session").value;
+        if (document.getElementById("common_meeting_name").value != "")
+            jObject.meetingName = document.getElementById("common_meeting_name").value;
+
         socket.emit("populateField", jObject, message_library.SHARE_PRESENTATION_EVENT, function (json) {
             document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
         });
@@ -328,9 +334,12 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
         jObject = pageChangedEvent();
 
          //fetch data from Meeting Info
-        /*jObject.meetingId = document.getElementById("common_meeting_id").value;
-        jObject.sessionId = document.getElementById("common_session").value;
-        jObject.meetingName = document.getElementById("common_meeting_name").value;*/
+        if (document.getElementById("common_meeting_id").value != "")
+            jObject.meetingId = document.getElementById("common_meeting_id").value;
+        if (document.getElementById("common_session").value != "")
+            jObject.sessionId = document.getElementById("common_session").value;
+        if (document.getElementById("common_meeting_name").value != "")
+            jObject.meetingName = document.getElementById("common_meeting_name").value;
 
         socket.emit("populateField", jObject, message_library.PAGE_CHANGED_EVENT, function (json) {
             document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
