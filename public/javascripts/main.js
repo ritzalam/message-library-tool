@@ -71,7 +71,6 @@ function bindEvent(socket) {
         message_library = data;
     });
 }
-
 //triggered when a user presses "Send" on any of the event forms
 function sendJsonPressed(element) {
     var list = element.parentNode.childNodes
@@ -86,39 +85,17 @@ function sendJsonPressed(element) {
     globalSocket = socket;
 
     //we extract the number of the section: "event_selector_11" would yield "11"
-    var currentSectionNum = selector.id.substring(15, selector.id.length);
-
-    var text = document.getElementById("json_track_" + currentSectionNum);
+    var text = document.getElementById("json_track_" + selector.id.substring(15, selector.id.length));
 
     var json_text = text.textContent.replace(/\s/g, ''); //strip off the empty spaces in the json string from the div
 
-
-    if (selectedEvent == message_library.WHITEBOARD_DRAW_EVENT)
+    if (isPresentIn(selectedEvent))
     {
-       socket.emit("provideJavascriptObject", json_text, message_library.WHITEBOARD_DRAW_EVENT, function (jObject) {
-            socket.emit("sendEventManual", jObject);
-        });
-    }
-    else if (selectedEvent == message_library.WHITEBOARD_UPDATE_EVENT)
-    {
-       socket.emit("provideJavascriptObject", json_text, message_library.WHITEBOARD_UPDATE_EVENT, function (jObject) {
-            socket.emit("sendEventManual", jObject);
-        });
-    }
-    else if (selectedEvent == message_library.SHARE_PRESENTATION_EVENT)
-    {
-       socket.emit("provideJavascriptObject", json_text, message_library.SHARE_PRESENTATION_EVENT, function (jObject) {
-            socket.emit("sendEventManual", jObject);
-        });
-    }
-    else if (selectedEvent == message_library.PAGE_CHANGED_EVENT)
-    {
-       socket.emit("provideJavascriptObject", json_text, message_library.PAGE_CHANGED_EVENT, function (jObject) {
+        socket.emit("provideJavascriptObject", json_text, selectedEvent, function (jObject) {
             socket.emit("sendEventManual", jObject);
         });
     }
 }
-
 // formatJson() :: formats and indents JSON string FROM http://ketanjetty.com/coldfusion/javascript/format-json/
 function formatJson(val) {
     var retval = '';
@@ -261,7 +238,6 @@ function whiteboard_update_event_sample () {
 
     return params;
 }
-
 //triggered when a user selects what kind of event to be added/displayed
 function pickEventFromList(element) { //can shrink this by A LOT later on
     //we extract the number of the section: "event_selector_11" would yield "11"
@@ -277,14 +253,6 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
     var socket = io.connect(window.location.protocol + "//" + window.location.host);
     globalSocket = socket;
 
-    function isPresentIn(str)
-    {
-        for(index in message_library.getEvents)
-            if (str == message_library.getEvents[index])
-                return true;
-        return false;
-    }
-    
     if(isPresentIn(selectedEvent)) {
         var jObject = window[selectedEvent + "_sample"]();
 
@@ -302,9 +270,7 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
     }
     else
         alert("could not identify what event you want to send");
-
 }
-
 //triggered when the user selects "Clear fields" under the Meeting Info section
 function clearMeetingInfo() {
     document.getElementById("common_meeting_name").value = "";
@@ -332,3 +298,12 @@ function expand_shrink_div(element) {
         tmp.style.display = "none";
     }
 }
+//helper function for checking whether the eventType is one of the defined types in message_library
+function isPresentIn(str)
+    {
+        for(index in message_library.getEvents)
+            if (str == message_library.getEvents[index])
+                return true;
+        return false;
+    }
+    
