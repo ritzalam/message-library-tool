@@ -158,7 +158,7 @@ function formatJson(val) {
 
     return retval;
 }
-function pageChangedEvent () {
+function page_changed_event_sample () {
 
     var params = {};
     params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
@@ -180,7 +180,7 @@ function pageChangedEvent () {
 
     return params;
 }
-function sharePresentationEvent () {
+function share_presentation_event_sample () {
 
     var params = {};
     params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
@@ -209,7 +209,7 @@ function sharePresentationEvent () {
 
     return params;
 }
-function whiteboardDraw () {
+function whiteboard_draw_event_sample () {
     var params = {};
     params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
     params.sessionId = "someSessionId";
@@ -235,7 +235,7 @@ function whiteboardDraw () {
 
     return params;
 }
-function whiteboardUpdate () {
+function whiteboard_update_event_sample () {
     var params = {};
     params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
     params.sessionId = "someSessionId";
@@ -277,12 +277,16 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
     var socket = io.connect(window.location.protocol + "//" + window.location.host);
     globalSocket = socket;
 
-    //we extract the number of the section: "event_selector_11" would yield "11"
-    var currentSectionNum = element.id.substring(15, element.id.length);
-
-    if (selectedEvent == message_library.WHITEBOARD_DRAW_EVENT)
+    function isPresentIn(str)
     {
-        jObject = whiteboardDraw();
+        for(index in message_library.getEvents)
+            if (str == message_library.getEvents[index])
+                return true;
+        return false;
+    }
+    
+    if(isPresentIn(selectedEvent)) {
+        var jObject = window[selectedEvent + "_sample"]();
 
         //fetch data from Meeting Info
         if (document.getElementById("common_meeting_id").value != "")
@@ -292,60 +296,10 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
         if (document.getElementById("common_meeting_name").value != "")
             jObject.meetingName = document.getElementById("common_meeting_name").value;
 
-        socket.emit("populateField", jObject, message_library.WHITEBOARD_DRAW_EVENT, function (json) {
+        socket.emit("populateField", jObject, selectedEvent, function (json) {
             document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
         });
     }
-        
-    else if (selectedEvent == message_library.WHITEBOARD_UPDATE_EVENT)
-    {
-        jObject = whiteboardUpdate();
-
-         //fetch data from Meeting Info
-        if (document.getElementById("common_meeting_id").value != "")
-            jObject.meetingId = document.getElementById("common_meeting_id").value;
-        if (document.getElementById("common_session").value != "")
-            jObject.sessionId = document.getElementById("common_session").value;
-        if (document.getElementById("common_meeting_name").value != "")
-            jObject.meetingName = document.getElementById("common_meeting_name").value;
-
-        socket.emit("populateField", jObject, message_library.WHITEBOARD_UPDATE_EVENT, function (json) {
-            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
-        });
-    }
-    else if (selectedEvent == message_library.SHARE_PRESENTATION_EVENT)
-    {
-        jObject = sharePresentationEvent();
-
-         //fetch data from Meeting Info
-         if (document.getElementById("common_meeting_id").value != "")
-            jObject.meetingId = document.getElementById("common_meeting_id").value;
-        if (document.getElementById("common_session").value != "")
-            jObject.sessionId = document.getElementById("common_session").value;
-        if (document.getElementById("common_meeting_name").value != "")
-            jObject.meetingName = document.getElementById("common_meeting_name").value;
-
-        socket.emit("populateField", jObject, message_library.SHARE_PRESENTATION_EVENT, function (json) {
-            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
-        });
-    }
-    else if (selectedEvent == message_library.PAGE_CHANGED_EVENT)
-    {
-        jObject = pageChangedEvent();
-
-         //fetch data from Meeting Info
-        if (document.getElementById("common_meeting_id").value != "")
-            jObject.meetingId = document.getElementById("common_meeting_id").value;
-        if (document.getElementById("common_session").value != "")
-            jObject.sessionId = document.getElementById("common_session").value;
-        if (document.getElementById("common_meeting_name").value != "")
-            jObject.meetingName = document.getElementById("common_meeting_name").value;
-
-        socket.emit("populateField", jObject, message_library.PAGE_CHANGED_EVENT, function (json) {
-            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
-        });
-    }
-
     else
         alert("could not identify what event you want to send");
 
