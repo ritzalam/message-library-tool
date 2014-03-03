@@ -135,6 +135,73 @@ function formatJson(val) {
 
     return retval;
 }
+//triggered when a user selects what kind of event to be added/displayed
+function pickEventFromList(element) { //can shrink this by A LOT later on
+    //we extract the number of the section: "event_selector_11" would yield "11"
+    var currentSectionNum = element.id.substring(15, element.id.length);
+    var list = element.parentNode.childNodes
+    for (var i = 0; i < list.length; i++) {
+        if (typeof list[i].id !== "undefined" && list[i].id.substring(0, 15) == 'event_selector_') {
+           var selector = list[i];
+        }
+    }
+    var selectedEvent = selector.options[selector.value].innerHTML;
+
+    var socket = io.connect(window.location.protocol + "//" + window.location.host);
+    globalSocket = socket;
+
+    if(isPresentIn(selectedEvent)) {
+        var jObject = window[selectedEvent + "_sample"]();
+
+        //fetch data from Meeting Info
+        if (document.getElementById("common_meeting_id").value != "")
+            jObject.meetingId = document.getElementById("common_meeting_id").value;
+        if (document.getElementById("common_session").value != "")
+            jObject.sessionId = document.getElementById("common_session").value;
+        if (document.getElementById("common_meeting_name").value != "")
+            jObject.meetingName = document.getElementById("common_meeting_name").value;
+
+        socket.emit("populateField", jObject, selectedEvent, function (json) {
+            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
+        });
+    }
+    else
+        alert("could not identify what event you want to send");
+}
+//triggered when the user selects "Clear fields" under the Meeting Info section
+function clearMeetingInfo() {
+    document.getElementById("common_meeting_name").value = "";
+    document.getElementById("common_meeting_id").value = "";
+    document.getElementById("common_session").value = "";
+}
+//triggered when the user presses -/+ in the beginning of a Send Event JSON row
+function expand_shrink_div(element) {
+    str = element.id.substring(24, element.id.length);
+    var btn = element.value;
+
+    var tmp;
+    var list = element.parentNode.childNodes;
+    for (var i = 0; i < list.length; i++) {
+        if (typeof list[i].id !== "undefined" && list[i].id.substring(0, 11) == 'json_track_') {
+            tmp = list[i];
+        }
+    }
+
+    if (btn == "+") {
+        element.value = "-";
+        tmp.style.display = "block";
+    } else if (btn == "-") {
+        element.value = "+";
+        tmp.style.display = "none";
+    }
+}
+//helper function for checking whether the eventType is one of the defined types in message_library
+function isPresentIn(str){
+    for(index in message_library.getEvents)
+        if (str == message_library.getEvents[index])
+            return true;
+    return false;
+}
 function page_changed_event_sample () {
 
     var params = {};
@@ -238,72 +305,3 @@ function whiteboard_update_event_sample () {
 
     return params;
 }
-//triggered when a user selects what kind of event to be added/displayed
-function pickEventFromList(element) { //can shrink this by A LOT later on
-    //we extract the number of the section: "event_selector_11" would yield "11"
-    var currentSectionNum = element.id.substring(15, element.id.length);
-    var list = element.parentNode.childNodes
-    for (var i = 0; i < list.length; i++) {
-        if (typeof list[i].id !== "undefined" && list[i].id.substring(0, 15) == 'event_selector_') {
-           var selector = list[i];
-        }
-    }
-    var selectedEvent = selector.options[selector.value].innerHTML;
-
-    var socket = io.connect(window.location.protocol + "//" + window.location.host);
-    globalSocket = socket;
-
-    if(isPresentIn(selectedEvent)) {
-        var jObject = window[selectedEvent + "_sample"]();
-
-        //fetch data from Meeting Info
-        if (document.getElementById("common_meeting_id").value != "")
-            jObject.meetingId = document.getElementById("common_meeting_id").value;
-        if (document.getElementById("common_session").value != "")
-            jObject.sessionId = document.getElementById("common_session").value;
-        if (document.getElementById("common_meeting_name").value != "")
-            jObject.meetingName = document.getElementById("common_meeting_name").value;
-
-        socket.emit("populateField", jObject, selectedEvent, function (json) {
-            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
-        });
-    }
-    else
-        alert("could not identify what event you want to send");
-}
-//triggered when the user selects "Clear fields" under the Meeting Info section
-function clearMeetingInfo() {
-    document.getElementById("common_meeting_name").value = "";
-    document.getElementById("common_meeting_id").value = "";
-    document.getElementById("common_session").value = "";
-}
-//triggered when the user presses -/+ in the beginning of a Send Event JSON row
-function expand_shrink_div(element) {
-    str = element.id.substring(24, element.id.length);
-    var btn = element.value;
-
-    var tmp;
-    var list = element.parentNode.childNodes;
-    for (var i = 0; i < list.length; i++) {
-        if (typeof list[i].id !== "undefined" && list[i].id.substring(0, 11) == 'json_track_') {
-            tmp = list[i];
-        }
-    }
-
-    if (btn == "+") {
-        element.value = "-";
-        tmp.style.display = "block";
-    } else if (btn == "-") {
-        element.value = "+";
-        tmp.style.display = "none";
-    }
-}
-//helper function for checking whether the eventType is one of the defined types in message_library
-function isPresentIn(str)
-    {
-        for(index in message_library.getEvents)
-            if (str == message_library.getEvents[index])
-                return true;
-        return false;
-    }
-    
