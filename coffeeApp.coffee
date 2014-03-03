@@ -29,7 +29,7 @@ app.use express.errorHandler()  if "development" is app.get("env")
 
 app.get "/", (req, res) ->
   res.render "index",
-    title: "Value Injector"
+    title: "Message Library Tool"
 
 #listening on port 4000
 server.listen PORT
@@ -62,6 +62,15 @@ bindEvents = (socket) ->
   socket.on "pageChangedEvent", (params) ->   
     helperDispatcher params, message_library.PAGE_CHANGED_EVENT
 
+  socket.on "populateField", (params, eventName, onSuccess) ->
+    message_library["#{eventName}_to_json"](params, ((json)->
+      console.log "this is onSuccess #{eventName}"
+      onSuccess (json)
+    ), ->
+      console.log "this is onFailure populateField: #{eventName}"
+    )
+
+
 helperDispatcher = (params, eventName) ->
     message_library["#{eventName}_to_json"](params, (json)->
       console.log "this is onSuccess #{eventName}"
@@ -69,3 +78,5 @@ helperDispatcher = (params, eventName) ->
     , ->
       console.log "this is onFailure #{eventName}"
     )
+
+

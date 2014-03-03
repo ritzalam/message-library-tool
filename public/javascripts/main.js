@@ -28,7 +28,7 @@ $(document).ready(function () {
         //Event Selector
         var tmpEventSelector = document.createElement('select');
         tmpEventSelector.setAttribute('id', 'event_selector_' + numEventRows);
-        for (index in message_library.getEvents) {
+        for (var index in message_library.getEvents) {
             tmpEventSelector.options[tmpEventSelector.options.length] = new Option(message_library.getEvents[index], index);
         }
         tmpEventSelector.setAttribute('onchange', 'pickEventFromList(this)');
@@ -70,7 +70,7 @@ function bindEvent(socket) {
     socket.on("providing_list_events", function (data) {
         message_library = data;
     });
-};
+}
 
 //triggered when a user presses "Send" on any of the event forms
 function sendJsonPressed(element) {
@@ -82,30 +82,9 @@ function sendJsonPressed(element) {
         }
     }
     
-    var socket = io.connect(window.location.protocol + "//" + window.location.host);
-    globalSocket = socket;
+    
 
-    var selectedEvent = selector.options[selector.value].innerHTML;
-    if (selectedEvent == message_library.WHITEBOARD_DRAW_EVENT)
-    {
-        socket.emit("sendEventDraw", whiteboardDraw());
-    }
-        
-    else if (selectedEvent == message_library.WHITEBOARD_UPDATE_EVENT)
-    {
-        socket.emit("sendEventUpdate", whiteboardUpdate());
-    }
-    else if (selectedEvent == message_library.SHARE_PRESENTATION_EVENT)
-    {
-        socket.emit("sharePresentationEvent", sharePresentationEvent());
-    }
-    else if (selectedEvent == message_library.PAGE_CHANGED_EVENT)
-    {
-        socket.emit("pageChangedEvent", pageChangedEvent());
-    }
-
-    else
-        alert("could not identify what event you want to send");
+    
 }
 
 // formatJson() :: formats and indents JSON string FROM http://ketanjetty.com/coldfusion/javascript/format-json/
@@ -146,7 +125,7 @@ function formatJson(val) {
     }
 
     return retval;
-};
+}
 function pageChangedEvent () {
 
     var params = {};
@@ -250,35 +229,70 @@ function whiteboardUpdate () {
 
     return params;
 }
-/*function sharePresentationEvent () {
-    var params = {};
 
-    params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
-    params.sessionId = "someSessionId";
-    params.channels = "apps_channel";
-    params.source = "bbb-apps";
-    params.meetingName = "someMeetingName";
-    params.presentationId = "pres-123";
-    params.presentationName = "Flight School";
-    params.byId = "someById";
-    params.byName = "someByName";
-
-    return params;
-}*/
 //triggered when a user selects what kind of event to be added/displayed
-function pickEventFromList(element) {
+function pickEventFromList(element) { //can shrink this by A LOT later on
     //fetch data from Meeting Info
     /*var meetingName = document.getElementById("common_meeting_name").value;
     var meetingID = document.getElementById("common_meeting_id").value;
     var sessionID = document.getElementById("common_session").value;
 
-    //fetch info for what event was selected from dropdown
-    var number = $(element).val();
-    var nameOfEvent = message_library.getEvents[element.selectedIndex];
-
     //we extract the number of the section: "event_selector_11" would yield "11"
     var currentSectionNum = element.id.substring(15, element.id.length);*/
-};
+    var list = element.parentNode.childNodes
+    for (var i = 0; i < list.length; i++) {
+        if (typeof list[i].id !== "undefined" && list[i].id.substring(0, 15) == 'event_selector_') {
+           var selector = list[i];
+        }
+    }
+    var selectedEvent = selector.options[selector.value].innerHTML;
+
+    var socket = io.connect(window.location.protocol + "//" + window.location.host);
+    globalSocket = socket;
+
+    //we extract the number of the section: "event_selector_11" would yield "11"
+    var currentSectionNum = element.id.substring(15, element.id.length);
+
+    alert("cur = " + currentSectionNum);
+
+
+    if (selectedEvent == message_library.WHITEBOARD_DRAW_EVENT)
+    {
+        jObject = whiteboardDraw();
+        socket.emit("populateField", jObject, message_library.WHITEBOARD_DRAW_EVENT, function (json) {
+            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
+        });
+    }
+        
+    else if (selectedEvent == message_library.WHITEBOARD_UPDATE_EVENT)
+    {
+        //socket.emit("sendEventUpdate", whiteboardUpdate());
+        jObject = whiteboardUpdate();
+        socket.emit("populateField", jObject, message_library.WHITEBOARD_UPDATE_EVENT, function (json) {
+            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
+        });
+    }
+    else if (selectedEvent == message_library.SHARE_PRESENTATION_EVENT)
+    {
+        //socket.emit("sharePresentationEvent", sharePresentationEvent());
+        jObject = sharePresentationEvent();
+        socket.emit("populateField", jObject, message_library.SHARE_PRESENTATION_EVENT, function (json) {
+            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
+        });
+    }
+    else if (selectedEvent == message_library.PAGE_CHANGED_EVENT)
+    {
+        //socket.emit("pageChangedEvent", pageChangedEvent());
+        jObject = pageChangedEvent();
+        socket.emit("populateField", jObject, message_library.PAGE_CHANGED_EVENT, function (json) {
+            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
+        });
+    }
+
+    else
+        alert("could not identify what event you want to send");
+
+}
 
 //triggered when the user selects "Clear fields" under the Meeting Info section
 function clearMeetingInfo() {
