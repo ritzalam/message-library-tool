@@ -10,6 +10,6 @@
     "socket.io" : "0.9.16",
     "redis" : "0.9.1",
     "coffee-script": "1.6.3",
-    "bigbluebutton-messages" : "0.0.3"
+    "bigbluebutton-messages" : "0.0.4"
   }
 }
