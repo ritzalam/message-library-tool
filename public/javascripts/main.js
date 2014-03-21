@@ -91,9 +91,17 @@ function sendJsonPressed(element) {
 
     if (isPresentIn(selectedEvent))
     {
-        socket.emit("provideJavascriptObject", json_text, selectedEvent, function (jObject) {
-            socket.emit("sendEventManual", jObject);
-        });
+        if(selectedEvent == "anton_custom") //I want this json published without validations, checks, conversion, etc
+        {
+            console.log("anton_custom event. json=" + json_text);
+            socket.emit("anton_custom", json_text);
+        }
+        else
+        {
+            socket.emit("provideJavascriptObject", json_text, selectedEvent, function (jObject) {
+                socket.emit("sendEventManual", jObject);
+            });
+        }
     }
 }
 // formatJson() :: formats and indents JSON string FROM http://ketanjetty.com/coldfusion/javascript/format-json/
@@ -151,6 +159,7 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
     globalSocket = socket;
 
     if(isPresentIn(selectedEvent)) {
+        if (selectedEvent != "anton_custom")
         var jObject = window[selectedEvent + "_sample"]();
 
         //fetch data from Meeting Info
@@ -160,10 +169,10 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
             jObject.sessionId = document.getElementById("common_session").value;
         if (document.getElementById("common_meeting_name").value != "")
             jObject.meetingName = document.getElementById("common_meeting_name").value;
-
-        socket.emit("populateField", jObject, selectedEvent, function (json) {
-            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
-        });
+        if (selectedEvent != "anton_custom")
+            socket.emit("populateField", jObject, selectedEvent, function (json) {
+                document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
+            });
     }
     else
         alert("could not identify what event you want to send");

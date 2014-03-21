@@ -87,6 +87,13 @@ bindEvents = (socket) ->
       console.log "this is onFailure populateField: #{eventName} (to object)"
     )
 
+  #TEMP
+  socket.on "anton_custom", (text) ->
+    channel = "bigbluebutton:meeting:anton"
+    console.log "injecting in channel #{channel} #{text}"
+    redisClient.publish "#{channel}", text
+
+
 
 helperDispatcher = (params, eventName) ->
     message_library["#{eventName}_to_json"](params, (json)->
