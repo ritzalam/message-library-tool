@@ -91,9 +91,17 @@ function sendJsonPressed(element) {
 
     if (isPresentIn(selectedEvent))
     {
-        socket.emit("provideJavascriptObject", json_text, selectedEvent, function (jObject) {
-            socket.emit("sendEventManual", jObject);
-        });
+        if(selectedEvent == "anton_custom") //I want this json published without validations, checks, conversion, etc
+        {
+            console.log("anton_custom event. json=" + json_text);
+            socket.emit("anton_custom", json_text);
+        }
+        else
+        {
+            socket.emit("provideJavascriptObject", json_text, selectedEvent, function (jObject) {
+                socket.emit("sendEventManual", jObject);
+            });
+        }
     }
 }
 // formatJson() :: formats and indents JSON string FROM http://ketanjetty.com/coldfusion/javascript/format-json/
@@ -151,6 +159,7 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
     globalSocket = socket;
 
     if(isPresentIn(selectedEvent)) {
+        if (selectedEvent != "anton_custom")
         var jObject = window[selectedEvent + "_sample"]();
 
         //fetch data from Meeting Info
@@ -160,10 +169,10 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
             jObject.sessionId = document.getElementById("common_session").value;
         if (document.getElementById("common_meeting_name").value != "")
             jObject.meetingName = document.getElementById("common_meeting_name").value;
-
-        socket.emit("populateField", jObject, selectedEvent, function (json) {
-            document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
-        });
+        if (selectedEvent != "anton_custom")
+            socket.emit("populateField", jObject, selectedEvent, function (json) {
+                document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
+            });
     }
     else
         alert("could not identify what event you want to send");
@@ -303,5 +312,52 @@ function whiteboard_update_event_sample () {
     params.background_alpha = 1;
     params.square = false;
 
+    return params;
+}
+function user_joined_event_sample() {
+
+    var a, b, c, params;
+    params = {};
+    params.channelsDestination = "apps_channel";
+    params.meetingName = "someMeetingName";
+    params.meetingId = "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1389108951916";
+    params.sessionId = "someSessionId";
+    params.source = "bbb-web";
+    params.userId = "juanid";
+    params.userExternalId = "userjuan";
+    params.userName = "Juan Tamad";
+    params.role = "MODERATOR";
+    params.pin = 12345;
+    params.welcome = "Welcome to English 101";
+    params.logoutUrl = "http://www.example.com";
+    params.avatarUrl = "http://www.example.com/avatar.png";
+    params.isPresenter = true;
+    params.handRaised = false;
+    params.muted = false;
+    params.locked = false;
+    params.talking = false;
+    params.callerName = "Juan Tamad";
+    params.callerNumber = "011-63-917-555-1234";
+    params.mediaStreams = [];
+    a = {};
+    a.media_type = "audio";
+    a.uri = "http://cdn.bigbluebutton.org/stream/a1234";
+    a.metadata = {};
+    a.metadata.foo = "bar";
+    b = {};
+    b.media_type = "video";
+    b.uri = "http://cdn.bigbluebutton.org/stream/v1234";
+    b.metadata = {};
+    b.metadata.foo = "bar";
+    c = {};
+    c.media_type = "screen";
+    c.uri = "http://cdn.bigbluebutton.org/stream/s1234";
+    c.metadata = {};
+    c.metadata.foo = "bar";
+    params.mediaStreams[0] = a;
+    params.mediaStreams[1] = b;
+    params.mediaStreams[2] = c;
+    params.studentId = "54321";
+    params.program = "engineering";
     return params;
 }

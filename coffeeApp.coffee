@@ -49,25 +49,13 @@ bindEvents = (socket) ->
   #fetch list to populate dropdown for eventName selection
   socket.on "requesting_list_events", ->
     socket.emit "providing_list_events", message_library
-  
-  socket.on "sendEventDraw", (params) ->
-    helperDispatcher params, message_library.WHITEBOARD_DRAW_EVENT
-
-  socket.on "sendEventUpdate", (params) ->   
-    helperDispatcher params, message_library.WHITEBOARD_UPDATE_EVENT
-  
-  socket.on "sharePresentationEvent", (params) ->   
-    helperDispatcher params, message_library.SHARE_PRESENTATION_EVENT
-
-  socket.on "pageChangedEvent", (params) ->   
-    helperDispatcher params, message_library.PAGE_CHANGED_EVENT
 
   socket.on "populateField", (params, eventName, onSuccess) ->
     message_library["#{eventName}_to_json"](params, ((json)->
       console.log "this is onSuccess #{eventName} (to json)"
       onSuccess (json)
-    ), ->
-      console.log "this is onFailure populateField: #{eventName} (to json)"
+    ), (e) ->
+      console.log "this is onFailure populateField: #{eventName} (to json) + #{e}"
     )
   
   socket.on "sendEventManual", (params) ->
@@ -83,10 +71,15 @@ bindEvents = (socket) ->
     message_library["#{eventName}_to_javascript_object"](params, ((jObject)->
       console.log "this is onSuccess #{eventName} (to object)"
       onSuccess (jObject)
-    ), ->
-      console.log "this is onFailure populateField: #{eventName} (to object)"
+    ), (e) ->
+      console.log "this is onFailure provideJavaScriptObject: #{eventName} (to object) + #{e}"
     )
 
+  #TEMP
+  socket.on "anton_custom", (text) ->
+    channel = "bigbluebutton:meeting:anton"
+    console.log "injecting in channel #{channel} #{text}"
+    redisClient.publish "#{channel}", text
 
 helperDispatcher = (params, eventName) ->
     message_library["#{eventName}_to_json"](params, (json)->
@@ -95,5 +88,3 @@ helperDispatcher = (params, eventName) ->
     , ->
       console.log "this is onFailure #{eventName} (to json)"
     )
-
-
