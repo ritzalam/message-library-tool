@@ -211,6 +211,8 @@ function isPresentIn(str){
             return true;
     return false;
 }
+
+//Sample events
 function page_changed_event_sample () {
 
     var params = {};
@@ -359,5 +361,17 @@ function user_joined_event_sample() {
     params.mediaStreams[2] = c;
     params.studentId = "54321";
     params.program = "engineering";
+    return params;
+}
+function user_left_event_sample() {
+    var params = {};
+    params.channelsDestination = "apps_channel";
+    params.meetingName = "someMeetingName";
+    params.meetingId = "someMeetingId";
+    params.sessionId = "english_101-12345";
+    params.source = "web-api";
+    params.userId = "juanid";
+    params.userName = "Juan Tamad";
+
     return params;
 }
