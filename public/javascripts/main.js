@@ -164,7 +164,9 @@ function pickEventFromList(element) {
     globalSocket = socket;
 
     if(isPresentIn(selectedEvent)) {
-        var jObject = window[selectedEvent + "_sample"]();
+        var jObject = {};
+        if (selectedEvent != "anton_custom")
+            jObject = window[selectedEvent + "_sample"]();
 
         //fetch data from Meeting Info
         if (document.getElementById("common_meeting_id").value != "")
