@@ -76,10 +76,13 @@ bindEvents = (socket) ->
     )
 
   #TEMP
-  socket.on "anton_custom", (text) ->
-    channel = "bigbluebutton:meeting:anton"
+  socket.on "anton_custom", (channel, text) ->
+    #channel = "bigbluebutton:meeting:anton"
     console.log "injecting in channel #{channel} #{text}"
     redisClient.publish "#{channel}", text
+
+  #socket.on "emit_channel", (receivedChannel) =>
+  #  @channel = receivedChannel
 
 helperDispatcher = (params, eventName) ->
     message_library["#{eventName}_to_json"](params, (json)->
