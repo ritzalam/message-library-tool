@@ -59,6 +59,7 @@ bindEvents = (socket) ->
     )
   
   socket.on "sendEventManual", (params) ->
+    params = JSON.parse params
     eventName = params.header.name
     message_library["#{eventName}_to_json_manual"](params, (json)->
       console.log "this is onSuccess #{eventName} *(to json)"

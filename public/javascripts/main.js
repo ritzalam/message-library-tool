@@ -64,9 +64,9 @@ $(document).ready(function () {
 function bindEvent(socket) {
     socket.on('connected', function () {
         console.log('\n\n**connected');
+        socket.emit("requesting_list_events");
     });
     //get list_events from the library (on load)
-    socket.emit("requesting_list_events");
     socket.on("providing_list_events", function (data) {
         message_library = data;
     });
@@ -163,7 +163,7 @@ function pickEventFromList(element) {
     var socket = io.connect(window.location.protocol + "//" + window.location.host);
     globalSocket = socket;
 
-    if(isPresentIn(selectedEvent)) {
+    if(isPresentIn(selectedEvent)) {//refactor
         var jObject = {};
         if (selectedEvent != "anton_custom")
             jObject = window[selectedEvent + "_sample"]();
