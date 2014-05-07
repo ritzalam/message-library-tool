@@ -73,7 +73,7 @@ bindEvents = (socket) ->
     )
 
   socket.on "provideJavascriptObject", (params, eventName, onSuccess) ->
-    message_library["#{eventName}_to_javascript_object"](params, ((jObject)->
+    message_library.convertAndValidateJSON(params, eventName, ((jObject)->
       console.log "this is onSuccess #{eventName} (to object)"
       onSuccess (jObject)
     ), (err) ->
