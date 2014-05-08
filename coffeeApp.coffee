@@ -1,11 +1,13 @@
 require "coffee-script"
-express = require("express")
-path = require("path")
-redis = require("redis")
-http = require("http")
+express = require "express"
+http    = require "http"
+path    = require "path"
+redis   = require "redis"
+
+message_library = require "bigbluebutton-messages/simple_message_library"
+
 redisClient = undefined
 PORT = 4000
-message_library = require("bigbluebutton-messages/simple_message_library")
 
 #setting up server to run
 app = express()
@@ -39,12 +41,14 @@ io.sockets.on "connection", (socket) -># the actual socket callback
   bindEvents socket
   socket.emit "connected"
   console.log "socket connected"
-  redisClient = redis.createClient()#once the socket is connected, connect to the redis client
+
+  #once the socket is connected, connect to the redis client
+  redisClient = redis.createClient()
   redisClient.on "connect", ->
     console.log "redis client connected"
 
-#        binds socket events for which it will listen on
-#        @param socket - the socket to transfer the events across
+#binds socket events for which it will listen on
+#@param socket - the socket to transfer the events across
 bindEvents = (socket) ->
   #fetch list to populate dropdown for eventName selection
   socket.on "requesting_list_events", ->
@@ -59,8 +63,9 @@ bindEvents = (socket) ->
     )
   
   socket.on "sendEventManual", (params) ->
+    params = JSON.parse params
     eventName = params.header.name
-    message_library["#{eventName}_to_json_manual"](params, (json)->
+    message_library.validateEventJSON(params, eventName, (json)->
       console.log "this is onSuccess #{eventName} *(to json)"
       redisClient.publish "bigbluebutton:bridge", json
     , ->
@@ -68,16 +73,17 @@ bindEvents = (socket) ->
     )
 
   socket.on "provideJavascriptObject", (params, eventName, onSuccess) ->
-    message_library["#{eventName}_to_javascript_object"](params, ((jObject)->
+    message_library.convertAndValidateJSON(params, eventName, ((jObject)->
       console.log "this is onSuccess #{eventName} (to object)"
       onSuccess (jObject)
-    ), (e) ->
-      console.log "this is onFailure provideJavaScriptObject: #{eventName} (to object) + #{e}"
+    ), (err) ->
+      console.log "this is onFailure provideJavaScriptObject:" + 
+      " #{eventName} (to object); #{err}"
     )
 
   #TEMP
-  socket.on "anton_custom", (text) ->
-    channel = "bigbluebutton:meeting:anton"
+  socket.on "anton_custom", (channel, text) ->
+    #channel = "bigbluebutton:meeting:anton"
     console.log "injecting in channel #{channel} #{text}"
     redisClient.publish "#{channel}", text
 

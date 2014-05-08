@@ -12,7 +12,7 @@ html
     script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.6/socket.io.min.js")
   body
     h2 Fill in the Meeting Info section and add some events using the "+Another Event" button
-    table#meeting_table(style='background-color: Brown')
+    table#meeting_table(style='background-color: Brown; width: 400px')
       th
         tr
           td
@@ -20,15 +20,19 @@ html
         tr
           td
             | Meeting Name:
-            input#common_meeting_name(type='text')
+            input#common_meeting_name(type='text' style='width: 250px')
         tr
           td
             | Meeting ID:
-            input#common_meeting_id(type='text')
+            input#common_meeting_id(type='text' style='width: 250px')
         tr
           td
             | Session:
-            input#common_session(type='text')
+            input#common_session(type='text' style='width: 250px')
+        tr
+          td
+            | Channel:
+            input#common_channel(type='text' style='width: 250px')
     input#clear_meeting_info(type='button', value='Clear fields', onclick='return clearMeetingInfo();')
 
     h2 Send Event JSON

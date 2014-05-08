@@ -64,9 +64,9 @@ $(document).ready(function () {
 function bindEvent(socket) {
     socket.on('connected', function () {
         console.log('\n\n**connected');
+        socket.emit("requesting_list_events");
     });
     //get list_events from the library (on load)
-    socket.emit("requesting_list_events");
     socket.on("providing_list_events", function (data) {
         message_library = data;
     });
@@ -94,7 +94,12 @@ function sendJsonPressed(element) {
         if(selectedEvent == "anton_custom") //I want this json published without validations, checks, conversion, etc
         {
             console.log("anton_custom event. json=" + json_text);
-            socket.emit("anton_custom", json_text);
+            var channel = document.getElementById("common_channel").value;
+            if (channel == ""){
+                alert("Please specify a channel!");
+            }
+            else
+            socket.emit("anton_custom", channel, json_text);
         }
         else
         {
@@ -144,7 +149,7 @@ function formatJson(val) {
     return retval;
 }
 //triggered when a user selects what kind of event to be added/displayed
-function pickEventFromList(element) { //can shrink this by A LOT later on
+function pickEventFromList(element) {
     //we extract the number of the section: "event_selector_11" would yield "11"
     var currentSectionNum = element.id.substring(15, element.id.length);
     var list = element.parentNode.childNodes
@@ -158,9 +163,10 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
     var socket = io.connect(window.location.protocol + "//" + window.location.host);
     globalSocket = socket;
 
-    if(isPresentIn(selectedEvent)) {
+    if(isPresentIn(selectedEvent)) {//refactor
+        var jObject = {};
         if (selectedEvent != "anton_custom")
-        var jObject = window[selectedEvent + "_sample"]();
+            jObject = window[selectedEvent + "_sample"]();
 
         //fetch data from Meeting Info
         if (document.getElementById("common_meeting_id").value != "")
@@ -169,6 +175,15 @@ function pickEventFromList(element) { //can shrink this by A LOT later on
             jObject.sessionId = document.getElementById("common_session").value;
         if (document.getElementById("common_meeting_name").value != "")
             jObject.meetingName = document.getElementById("common_meeting_name").value;
+        if (document.getElementById("common_channel").value != ""){
+            //TODO (implemented only for event "anton_custom")
+            // the problem for is that in different messages the name of the field "channel"
+            // varies: channel/channels/channelsDestination
+            //therefore some more work has to be done if we want the message with this field
+            //populated to be able to successfully be validated in the message library
+
+            //jObject.channel = document.getElementById("common_channel").value;
+        }
         if (selectedEvent != "anton_custom")
             socket.emit("populateField", jObject, selectedEvent, function (json) {
                 document.getElementById("json_track_" + currentSectionNum).innerHTML = formatJson(json);
@@ -182,6 +197,7 @@ function clearMeetingInfo() {
     document.getElementById("common_meeting_name").value = "";
     document.getElementById("common_meeting_id").value = "";
     document.getElementById("common_session").value = "";
+    document.getElementById("common_channel").value = "";
 }
 //triggered when the user presses -/+ in the beginning of a Send Event JSON row
 function expand_shrink_div(element) {
